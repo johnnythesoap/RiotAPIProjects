@@ -49,42 +49,32 @@ const fetchAccountData = async (gameName, tagLine) => {
     }
 };
 
-// Helper function to fetch match IDs by puuid
-const fetchMatchIds = async (puuid) => {
+const fetchMatchIdsByPuuid = async (puuid) => {
     const url = matchV5MatchIds(puuid);
     try {
         const response = await axios.get(url);
-        return response.data; // Return array of match IDs
+        return response.data; // array of matchids
     } catch (error) {
         console.error('Error fetching match IDs:', error.response ? error.response.data : error.message);
         throw new Error('Match ID fetch failed');
     }
 };
 
-// Helper function to fetch match data by match ID
-const fetchMatchData = async (matchId) => {
-    const url = matchV5MatchData(matchId);
-    try {
-        const response = await axios.get(url);
-        return response.data; // Return the match data
-    } catch (error) {
-        console.error('Error fetching match data:', error.response ? error.response.data : error.message);
-        throw new Error('Match data fetch failed');
-    }
-};
-
-// Helper function to fetch all match data by match IDs
 const fetchAllMatchData = async (matchIds) => {
     const matchData = [];
+
     for (const matchId of matchIds) {
         try {
-            const data = await fetchMatchData(matchId);
-            matchData.push(data);
-            await delay(100); 
+            const url = matchV5MatchData(matchId);
+            const response = await axios.get(url);
+            matchData.push(response.data);
+            await delay(100); // rate limit delay
         } catch (error) {
-            console.error(`Failed to fetch data for match ID ${matchId}`, error.message);
+            console.error(`Error fetching data for match ID ${matchId}:`, error.response ? error.response.data : error.message);
+
         }
     }
+
     return matchData;
 };
 
@@ -103,7 +93,7 @@ router.post('/account-data', async (req, res) => {
         console.log("Fetched PUUID:", puuid);
 
         // Step 2: Fetch match IDs using puuid
-        const matchIds = await fetchMatchIds(puuid);
+        const matchIds = await fetchMatchIdsByPuuid(puuid);
         const limitedMatchIds = matchIds.slice(0, numberOfMatches);
 
         // Step 3: Fetch detailed match data for each match ID
@@ -128,24 +118,24 @@ router.post('/account-data', async (req, res) => {
             };
         });
         
-        // Send the transformed match data as JSON response
+        // JSON containing match data
         res.json({ matchData: transformedMatchData });
     } catch (error) {
-        console.error("Error:", error); // Log error details
+        console.error("Error:", error);
         res.status(500).send(error.message);
     }
 });
 
-// New route for downloading match data as CSV
+// rout for downloads as CSV
 router.post('/download-csv', async (req, res) => {
-    const { data } = req.body; // Retrieve the match data from the request body
+    const { data } = req.body;
 
     if (!data || !data.length) {
         return res.status(400).send("No data available for CSV download.");
     }
 
     try {
-        // Define fields you want to include in the CSV
+        // Fields included in the CSV (same as those on website)
         const fields = [
             { label: 'Player Name', value: 'playerName' },
             { label: 'Champion Name', value: 'championName' },
@@ -163,8 +153,8 @@ router.post('/download-csv', async (req, res) => {
 
         // Set the response headers to prompt a file download
         res.header('Content-Type', 'text/csv');
-        res.attachment('match_data.csv'); // Suggest a filename for the download
-        res.send(csv); // Send the CSV file data
+        res.attachment('match_data.csv'); // filename
+        res.send(csv);
 
     } catch (error) {
         console.error('Error generating CSV:', error.message);
@@ -176,9 +166,8 @@ router.get('/test', (req, res) => {
     res.send('Test route is working!');
 });
 
-// Unified exports
+// Unified exports to server.js
 module.exports = {
     router, // Exporting the router
     fetchAccountData, // Exporting the fetchAccountData function
-    // Add any other exports you need here
 };

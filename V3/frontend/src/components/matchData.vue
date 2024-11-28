@@ -131,7 +131,7 @@ body {
 }
 
 h2 {
-  color: #ffffff; /* Ensures heading text is white */
+  color: #ffffff;
 }
 
 .form {
@@ -161,7 +161,7 @@ button {
   margin-top: 10px;
   cursor: pointer;
   color: #ffffff;
-  background-color: #5884ec; /* Button color to match header */
+  background-color: #5884ec;
   border: none;
 }
 
@@ -171,17 +171,17 @@ button {
   margin-top: 10px;
 }
 
-/* Styling for the table */
+
 table {
-  width: 100%; /* Full-width table */
+  width: 100%; 
   border-collapse: collapse;
   margin-top: 20px;
 }
 
 th, td {
-  padding: 12px 15px; /* Padding for readability */
-  border: 1px solid #555555; /* Border between cells for readability */
-  text-align: left; /* Align text to the left */
+  padding: 12px 15px; 
+  border: 1px solid #555555; 
+  text-align: left; 
 }
 
 th {
@@ -194,7 +194,6 @@ td {
   color: #9191a8; /* Cell text color */
 }
 
-/* Conditional row colors based on win status */
 tr.win-true {
   background-color: #2F436E; /* Blue for wins */
 }
